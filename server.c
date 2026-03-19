@@ -39,7 +39,6 @@ int main()
   }
 
   my_bind = bind(dock, (struct sockaddr *)&my_addr, sizeof(my_addr));
-
   if (my_bind == -1)
   {
     perror("Bind is failing");
@@ -47,7 +46,6 @@ int main()
   }
 
   my_listen = listen(dock, LISTEN_BACKLOG);
-
   if (my_listen == -1)
   {
     perror("Listen is failing");
