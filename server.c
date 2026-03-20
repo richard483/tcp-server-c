@@ -3,12 +3,14 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 #define LISTEN_BACKLOG 10
 #define SOCKET_OPT_VAL 1
 
 int main()
 {
+  printf("Program is starting!\n");
   struct sockaddr_in my_addr, client_addr;
 
   int dock, my_bind, my_listen, my_accept, my_sockopt;
@@ -66,20 +68,38 @@ int main()
       return 1;
     }
 
-    read_result = read(my_accept, buffer, sizeof(buffer) - 1);
+    pid_t pid = fork();
 
-    my_write = write(my_accept, response, strlen(response));
+    if (pid == -1)
+    {
+      printf("Fork is failing\n");
+      return 1;
+    }
+    else if (pid == 0)
+    {
+      close(dock);
+
+      read_result = read(my_accept, buffer, sizeof(buffer) - 1);
+      if (read_result == -1)
+      {
+        printf("Read is failing\n");
+        return 1;
+      }
+
+      my_write = write(my_accept, response, strlen(response));
+      if (my_write == -1)
+      {
+        printf("Write is failing\n");
+        return 1;
+      }
+
+      printf("Done child process\n");
+      close(my_accept);
+      return 0;
+    }
+
     close(my_accept);
-
-    printf("Heres the program result:\n\n");
-    printf("dock: %d\n", dock);
-    printf("sockopt: %d\n", my_sockopt);
-    printf("bind: %d\n", my_bind);
-    printf("listen: %d\n", my_listen);
-    printf("accept: %d\n", my_accept);
-    printf("read: %ld\n", read_result);
-    printf("buffer: %s\n", buffer);
-    printf("write: %ld\n", my_write);
+    waitpid(-1, NULL, WNOHANG);
   }
 
   return 0;
