@@ -15,8 +15,6 @@ int main()
 
   int dock, my_bind, my_listen, my_accept, my_sockopt;
   int socketoptval = SOCKET_OPT_VAL;
-  char buffer[1024];
-  char response[] = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
 
   socklen_t client_len;
   ssize_t read_result, my_write;
@@ -59,8 +57,6 @@ int main()
     memset(&client_addr, 0, sizeof(client_addr));
     client_len = sizeof(client_addr);
 
-    memset(&buffer, 0, sizeof(buffer));
-
     my_accept = accept(dock, (struct sockaddr *)&client_addr, &client_len);
     if (my_accept == -1)
     {
@@ -77,6 +73,10 @@ int main()
     }
     else if (pid == 0)
     {
+      char response[] = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
+      char buffer[1024];
+      memset(&buffer, 0, sizeof(buffer));
+
       close(dock);
 
       read_result = read(my_accept, buffer, sizeof(buffer) - 1);
